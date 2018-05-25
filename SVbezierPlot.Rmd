@@ -2,6 +2,9 @@
 title: "Bezier curves-like plot for structural variants visualisation"
 author: "Jacek Marzec"
 date: "25/05/2018"
+params:
+  bedpe:
+  outfile:
 output: 
   html_document:
     keep_md: yes
@@ -21,13 +24,12 @@ suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
 #### Read BEDPE file
 
-
 Read the BEDPE file and extract the SVs info including start and end chromosomes, positions, as well as the variant type
 
 ```{r load_data}
 
 ##### Read the BEDPE file
-sv.data <- read.table(file="example_data/structural/example-manta-pass.bedpe", sep="\t", as.is=TRUE, header=TRUE, comment.char="")
+sv.data <- read.table(file=params$bedpe, sep="\t", as.is=TRUE, header=TRUE, comment.char="")
 
 ##### Get the SV chromosomes...
 chr1 <- paste0("chr", sv.data[,1])
@@ -138,14 +140,14 @@ beziers <- data.frame(
 Generate a bezier curves-like plot representing SVs
 
 ```{r beziers_plot}
-ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = beziers, show.legend = TRUE, size = 0.4) +
+ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = beziers, show.legend = TRUE, size = 0.2) +
 
 		##### Remove default axes labels and grey backgroud
 		theme(axis.title.x=element_blank(), axis.text.x= element_blank(), axis.ticks.x=element_blank(), axis.title.y=element_blank(), axis.text.y= element_blank(), axis.ticks.y=element_blank(),
 		##### ...and the grey backgroud
 					panel.background = element_rect(fill = NA),
 		##### ...change the legend parameters
-					legend.title=element_text(size=8), legend.text=element_text(size=7), legend.key.size = unit(0.7,"line"), legend.key= element_blank(), legend.position = c(0.97,0.7) ) +
+					legend.title=element_text(size=6), legend.text=element_text(size=5), legend.key.size = unit(0.7,"line"), legend.key= element_blank(), legend.position = c(0.97,0.7) ) +
 
 		##### Set the axes limits
 		scale_x_continuous(limits = c(1, genome.length)) +
@@ -157,7 +159,23 @@ ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = 
 		labs( color = "SV type") +
 
 		##### Add chromosomes labels
-		annotate(geom = 'text', label = names(chrs_fake_label.pos), x = unlist(chrs_fake_label.pos), y = 0.1, size = 2, angle = 45)
+		annotate(geom = 'text', label = names(chrs_fake_label.pos), x = unlist(chrs_fake_label.pos), y = 0.1, size = 1.5, angle = 45)
+```
+
+
+Save the ggplot as .png file. If no output plot name is specified the file will have the same name as the input BEDPE file with added "_SVbezier" at the end and the extension changed to ".png"
+
+```{r save_plot}
+##### Check if the output plot name is specified
+if ( is.na(unlist(params)[2]) ) {
+	outfile = unlist(strsplit(params$bedpe, split='.', fixed=TRUE))
+	outfile = paste0(paste(outfile[-length(outfile)], collapse = '.'), "_SVbezier.png")
+} else {
+  outfile = params$outfile
+}
+
+ggsave(file = outfile, plot = last_plot(), device = png(), scale = 1, width = 18, height = 3, units = "cm", dpi = 300, limitsize = TRUE)
+dev.off()
 ```
 
 Print session info
