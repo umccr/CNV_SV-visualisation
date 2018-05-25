@@ -30,15 +30,15 @@ Read the BEDPE file and extract the SVs info including start and end chromosomes
 sv.data <- read.table(file="example_data/structural/example-manta-pass.bedpe", sep="\t", as.is=TRUE, header=TRUE, comment.char="")
 
 ##### Get the SV chromosomes...
-chr1 <- paste0("chr", sv.data$X.CHROM_A)
-chr2 <- paste0("chr", sv.data$CHROM_B)
+chr1 <- paste0("chr", sv.data[,1])
+chr2 <- paste0("chr", sv.data[,4])
 
 ##### ...positions
-pos1 <- sv.data$START_A
-pos2 <- sv.data$START_B
+pos1 <- sv.data[,2]
+pos2 <- sv.data[,5]
 
 ##### ... and the events type
-type <- sv.data$ID
+type <- sv.data[,7]
 type = gsub("Manta","", type)
 type = gsub(":\\d+","", type)
 ```
@@ -163,5 +163,5 @@ ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = 
 Print session info
 
 ```{r session_info}
-sessionInfo()
+sessionInfo
 ```
