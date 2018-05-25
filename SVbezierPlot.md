@@ -1,6 +1,6 @@
 ## Bezier curves-like plot for structural variants visualisation
 
-Script generating a bezier curves-like plot representing structural variants (SVs) listed in specified BEDPE file. Currently the script plots take into account only the start of each segement (*START_A* and *START_B* columns in the *BEDPE* file) to plot the bezier curves between the different genomic locations of the event.
+Script generating a bezier curves-like plot representing structural variants (SVs) listed in specified *BEDPE* file. Currently the script plots take into account only the start of each segement (*second* and *fifth* columns in the [*BEDPE*](http://bedtools.readthedocs.io/en/latest/content/general-usage.html#bedpe-format) file) to plot the bezier curves between the different genomic locations of individual events.
 
 There is also a command line version of this script where one can specify the input file (\--bedpe), output plot name (\--output), as well as the genome build version (\--g_build) using the command line arguments.
 
@@ -43,7 +43,7 @@ type = gsub(":\\d+","", type)
 
 ### Prepare x-axis coordinates info for ggplot
 
-This part of the script converts the genomic positions from hg38 (other genome build can be selected using the command line script) to coordinates that can be plotted on the ggplot x-axis.
+This part of the script converts the genomic positions (*GRCh38*) to coordinates that can be plotted on the ggplot x-axis.
 
 Start with calculating the whole genome length. Here we consider chromosomes 1-22, X and Y
 
