@@ -1,0 +1,167 @@
+---
+title: "Bezier curves-like plot for structural variants visualisation"
+author: "Jacek Marzec"
+date: "25/05/2018"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+Script generating a bezier curves-like plot representing structural variants (SVs) listed in specified BEDPE file. Currently the script plots take into account only the start of each segement ("START_A" and "START_B" columns in the BEDPE file) to plot the bezier curves between the different genomic locations of the event.
+There is also a command line version of this script where one can specify the input file (\--bedpe), output plot name (\--output), as well as the genome build version (\--g_build) using the command line arguments.
+
+
+#### Load libraries
+
+```{r load_libraries}
+suppressMessages(library(ggplot2))
+suppressMessages(library(ggforce))
+suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
+```
+
+#### Read BEDPE file
+
+
+Read the BEDPE file and extract the SVs info including start and end chromosomes, positions, as well as the variant type
+
+```{r load_data}
+
+##### Read the BEDPE file
+sv.data <- read.table(file="example_data/structural/example-manta-pass.bedpe", sep="\t", as.is=TRUE, header=TRUE, comment.char="")
+
+##### Get the SV chromosomes...
+chr1 <- paste0("chr", sv.data$X.CHROM_A)
+chr2 <- paste0("chr", sv.data$CHROM_B)
+
+##### ...positions
+pos1 <- sv.data$START_A
+pos2 <- sv.data$START_B
+
+##### ... and the events type
+type <- sv.data$ID
+type = gsub("Manta","", type)
+type = gsub(":\\d+","", type)
+```
+
+#### Prepare x-axis coordinates info for ggplot
+
+This part of the script converts the genomic positions from hg38 (other genome build can be selected using the command line script) to coordinates that can be plotted on the ggplot x-axis.
+
+Start with calculating the whole genome length. Here we consider chromosomes 1-22, X and Y
+
+```{r genome_length}
+genome.length = sum(seqlengths(Hsapiens)[1:24])
+```
+
+
+Now calculate fake chromosomes' start positions so that they match with the x-axis coordinates in the ggplot
+
+```{r fake_starts_list}
+chrs_fake_starts <- vector("list", 24)
+chrs_fake_starts  <- setNames(chrs_fake_starts,  names(Hsapiens)[1:24] )
+```
+
+Chromosome 1 has coordingate 0
+
+```{r fake_chr1_start}
+chrs_fake_starts[["chr1"]] <- 0
+```
+
+The coordinates for the remaining chromosomes will be calculated by adding the lengths of individual preceding chromosomes
+
+```{r fake_starts}
+length_sum <- 0
+
+for ( i in 2:length(chrs_fake_starts) ) {
+
+#	cat(paste0("\nCalculations for " , names(chrs_fake_starts)[i], "...", sep=""))
+	cat(paste("\nThe fake start position for " , names(chrs_fake_starts)[i], " is ", length_sum + as.numeric(seqlengths(Hsapiens)[[i-1]]), sep=""))
+#	cat(paste("\nLength of " , names(chrs_fake_starts)[i-1], " = ", as.numeric(seqlengths(Hsapiens)[[i-1]]), " and the sum of the preceding chromosomes = ", length_sum, ".\n\n", sep=""))
+
+	length_sum <- length_sum + as.numeric(seqlengths(Hsapiens)[[i-1]])
+	chrs_fake_starts[[names(Hsapiens)[i]]] <- length_sum
+}
+```
+
+Calculate the coordinates for x-axis labels (chr1, chr2...) for ggplot by adding the half-lenght of each chrosomome to its fake start
+
+```{r fake_labels_positions}
+chrs_fake_label.pos <- vector("list", 24)
+chrs_fake_label.pos  <- setNames(chrs_fake_label.pos,  names(Hsapiens)[1:24] )
+
+for ( i in 1:length(chrs_fake_starts) ) {
+
+	chrs_fake_label.pos[[names(Hsapiens)[i]]] <- seqlengths(Hsapiens)[[i]]/2 + chrs_fake_starts[[names(Hsapiens)[i]]]
+
+	cat(paste("\nThe x-axis coordinate for " , names(chrs_fake_starts)[i], " label is ", chrs_fake_label.pos[[names(Hsapiens)[i]]], " = ",  seqlengths(Hsapiens)[[i]]/2, " (half-length) + ", chrs_fake_starts[[names(Hsapiens)[i]]]," (fake start)", sep=""))
+#	cat(paste("\nLength of " , names(chrs_fake_starts)[i], " = ", seqlengths(Hsapiens)[[i]], " and the fake start of chromosome ", names(Hsapiens)[i], " = ", chrs_fake_starts[[names(Hsapiens)[i]]], ".\n\n", sep=""))
+}
+```
+
+#### Calculate ggplot x-axis coordinates for SV
+
+Calculate the coordinates to draw bezier curves by adding the SV position info to the fake start coordinates of corresponding chromosomes
+
+```{r fake_beziers_positions}
+pos1_fake <- vector("list", nrow(sv.data))
+pos2_fake <- vector("list", nrow(sv.data))
+
+for ( i in 1:nrow(sv.data) ) {
+
+	cat(paste("\nCalculations for SV: " , paste( chr1[i], pos1[i], sep=" " ), "-",  paste( chr2[i], pos2[i], sep=" " ), sep=""))
+	cat(paste("\nThe x-axis coordinate for position 1 is ", chrs_fake_starts[[chr1[i]]] + pos1[i], " = ",  chrs_fake_starts[[chr1[i]]], " (the fake start of ", chr1[i],") + ", pos1[i], " (the real position 1)", sep=""))
+	cat(paste("\nThe x-axis coordinate for position 2 is ", chrs_fake_starts[[chr2[i]]] + pos2[i], " = ",  chrs_fake_starts[[chr2[i]]], " (the fake start of ", chr2[i],") + ", pos2[i], " (the real position 2).\n", sep=""))
+
+	pos1_fake[[i]] <- chrs_fake_starts[[chr1[i]]] + pos1[i]
+	pos2_fake[[i]] <- chrs_fake_starts[[chr2[i]]] + pos2[i]
+}
+```
+
+Get random number for the bezier curves' heigths and caluclate the middle point for each bezier curve
+
+```{r beziers_heigths_midpoints}
+beziers.height <- runif(nrow(sv.data), 1, 2)
+beziers.mid <- unlist(pos1_fake)+(unlist(pos2_fake)-unlist(pos1_fake))/2
+```
+
+Create dataframe with beziers curves info
+```{r beziers_dataframe}
+beziers <- data.frame(
+    x = c(rbind( unlist(pos1_fake), beziers.mid, unlist(pos2_fake) )),
+    y = c(rbind( 0.2, beziers.height, 0.2 ) ),
+    group = rep( paste( chr1, pos1, chr2, pos2, sep="_" ), each=3),
+		svtype = rep( type, each=3)
+)
+```
+
+
+Generate a bezier curves-like plot representing SVs
+
+```{r beziers_plot}
+ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = beziers, show.legend = TRUE, size = 0.4) +
+
+		##### Remove default axes labels and grey backgroud
+		theme(axis.title.x=element_blank(), axis.text.x= element_blank(), axis.ticks.x=element_blank(), axis.title.y=element_blank(), axis.text.y= element_blank(), axis.ticks.y=element_blank(),
+		##### ...and the grey backgroud
+					panel.background = element_rect(fill = NA),
+		##### ...change the legend parameters
+					legend.title=element_text(size=8), legend.text=element_text(size=7), legend.key.size = unit(0.7,"line"), legend.key= element_blank(), legend.position = c(0.97,0.7) ) +
+
+		##### Set the axes limits
+		scale_x_continuous(limits = c(1, genome.length)) +
+		scale_y_continuous(limits = c(0, 2)) +
+
+		##### Add chromosomes boundaries
+		geom_segment(aes(x = c(1,unlist(chrs_fake_starts)[2:24],genome.length) , xend = c(1,unlist(chrs_fake_starts)[2:24],genome.length), y = 0, yend = 0.2), colour = 'grey', size = 0.2) +
+
+		labs( color = "SV type") +
+
+		##### Add chromosomes labels
+		annotate(geom = 'text', label = names(chrs_fake_label.pos), x = unlist(chrs_fake_label.pos), y = 0.1, size = 2, angle = 45)
+```
+
+Print session info
+
+```{r session_info}
+sessionInfo
+```
