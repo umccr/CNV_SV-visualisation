@@ -163,5 +163,5 @@ ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = 
 Print session info
 
 ```{r session_info}
-sessionInfo
+sessionInfo()
 ```
