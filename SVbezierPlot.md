@@ -6,7 +6,7 @@ There is also a command line version of this script where one can specify the in
 
 <br>
 
-#### Load libraries
+### Load libraries
 
 ```r
 suppressMessages(library(ggplot2))
@@ -16,7 +16,7 @@ suppressMessages(library(BSgenome.Hsapiens.UCSC.hg38))
 
 <br>
 
-#### Read BEDPE file
+### Read BEDPE file
 
 Read the *BEDPE* file and extract the SVs info including start and end chromosomes, positions, as well as the variant type
 
@@ -41,7 +41,7 @@ type = gsub(":\\d+","", type)
 
 <br>
 
-#### Prepare x-axis coordinates info for ggplot
+### Prepare x-axis coordinates info for ggplot
 
 This part of the script converts the genomic positions from hg38 (other genome build can be selected using the command line script) to coordinates that can be plotted on the ggplot x-axis.
 
@@ -150,7 +150,7 @@ for ( i in 1:length(chrs_fake_starts) ) {
 
 <br>
 
-#### Calculate ggplot x-axis coordinates for SV
+### Calculate ggplot x-axis coordinates for SV
 
 Calculate the coordinates to draw bezier curves by adding the SV position info to the fake start coordinates of corresponding chromosomes
 
@@ -238,6 +238,7 @@ ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = 
 ![](SVbezierPlot_files/figure-html/beziers_plot-1.png)<!-- -->
 
 <br>
+
 Print session info
 
 ```r
