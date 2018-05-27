@@ -33,8 +33,8 @@ pos2 <- sv.data$START_B
 
 ##### ... and the events type
 type <- sv.data$ID
-type = gsub("Manta","", type)
-type = gsub(":\\d+","", type)
+type <-  gsub("Manta","", type)
+type <-  gsub(":\\d+","", type)
 ```
 
 <br>
@@ -46,7 +46,7 @@ This part of the script converts the genomic positions (*GRCh38*) to coordinates
 Start with calculating the whole genome length. Here we consider chromosomes 1-22, X and Y
 
 ```r
-genome.length = sum(seqlengths(Hsapiens)[1:24])
+genome.length <- sum(seqlengths(Hsapiens)[1:24])
 ```
 
 Now calculate fake chromosomes' start positions so that they match with the x-axis coordinates in the ggplot
@@ -108,7 +108,7 @@ Calculate the coordinates for x-axis labels (chr1, chr2...) for ggplot by adding
 
 ```r
 chrs_fake_label.pos <- vector("list", 24)
-chrs_fake_label.pos  <- setNames(chrs_fake_label.pos,  names(Hsapiens)[1:24] )
+chrs_fake_label.pos <- setNames(chrs_fake_label.pos,  names(Hsapiens)[1:24] )
 
 for ( i in 1:length(chrs_fake_starts) ) {
 
@@ -171,19 +171,19 @@ for ( i in 1:nrow(sv.data) ) {
 ## Calculations for SV: chr1 29416966-chr5 157376567
 ## The x-axis coordinate for position 1 is 29416966 = 0 (the fake start of chr1) + 29416966 (the real position 1)
 ## The x-axis coordinate for position 2 is 1037036632 = 879660065 (the fake start of chr5) + 157376567 (the real position 2).
-## 
+##
 ## Calculations for SV: chr1 39559701-chr9 13237205
 ## The x-axis coordinate for position 1 is 39559701 = 0 (the fake start of chr1) + 39559701 (the real position 1)
 ## The x-axis coordinate for position 2 is 1549726117 = 1536488912 (the fake start of chr9) + 13237205 (the real position 2).
-## 
+##
 ## Calculations for SV: chr1 211768443-chr7 121001796
 ## The x-axis coordinate for position 1 is 211768443 = 0 (the fake start of chr1) + 211768443 (the real position 1)
 ## The x-axis coordinate for position 2 is 1353006099 = 1232004303 (the fake start of chr7) + 121001796 (the real position 2).
-## 
+##
 ## Calculations for SV: chr1 226466151-chr5 139934838
 ## The x-axis coordinate for position 1 is 226466151 = 0 (the fake start of chr1) + 226466151 (the real position 1)
 ## The x-axis coordinate for position 2 is 1019594903 = 879660065 (the fake start of chr5) + 139934838 (the real position 2).
-## 
+##
 ## Calculations for SV: chr1 233997283-chr3 71583534
 ## The x-axis coordinate for position 1 is 233997283 = 0 (the fake start of chr1) + 233997283 (the real position 1)
 ## The x-axis coordinate for position 2 is 562733485 = 491149951 (the fake start of chr3) + 71583534 (the real position 2).
@@ -247,18 +247,18 @@ sessionInfo()
 ## R version 3.5.0 (2018-04-23)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS High Sierra 10.13.4
-## 
+##
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
 ## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
-## 
+##
 ## locale:
 ## [1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
-## 
+##
 ## attached base packages:
-## [1] stats4    parallel  stats     graphics  grDevices utils     datasets 
+## [1] stats4    parallel  stats     graphics  grDevices utils     datasets
 ## [8] methods   base     
-## 
+##
 ## other attached packages:
 ##  [1] BSgenome.Hsapiens.UCSC.hg38_1.4.1 BSgenome_1.48.0                  
 ##  [3] rtracklayer_1.40.2                Biostrings_2.48.0                
