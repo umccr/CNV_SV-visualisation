@@ -22,13 +22,13 @@ Argument | Description
 --output | Output plot name (saved as png file)
 
 
-Note, if no *--output* argument is specified the output file will have the same name as the input *BEDPE* file with added *_SVbezier* at the end and the extension changes to *.png*.
+Note, if no *--output* argument is specified the output file will have the same name as the input *BEDPE* file with added *_SVbezier* at the end and the extension changed to *.png*.
 <br>
 
-Command line use example:
+**Command line use example**:
 
 ```
-Rscript SVbezierPlot.R --bedpe example_data/structural/example-manta-pass.bedpe --output example_data/structural/SVbezierPlot.png
+Rscript SVbezierPlot.R --bedpe example_data/structural/example-manta-pass.bedpe --output example_data/structural/SVbezierPlot
 ```
 <br>
 
@@ -44,5 +44,5 @@ This will output a **bezier curves-like plot** representing structural variants 
 
 ### CNV visualisation
 
-The scripts for CNV data visualisation, including B allele frequency (BAF) and log R ratio (LLR) plots, will be added later.
+The scripts for CNV data visualisation, including B allele frequency (BAF) and log R ratio (LLR) plots, to be added.
 
