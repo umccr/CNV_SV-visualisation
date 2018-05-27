@@ -10,8 +10,7 @@ output:
     keep_md: yes
 ---
 
-Script generating a bezier curves-like plot representing structural variants (SVs) listed in specified BEDPE file. Currently the script plots take into account only the start of each segement ("START_A" and "START_B" columns in the BEDPE file) to plot the bezier curves between the different genomic locations of the event.
-There is also a command line version of this script where one can specify the input file (\--bedpe), output plot name (\--output), as well as the genome build version (\--g_build) using the command line arguments.
+Script generating a bezier curves-like plot representing structural variants (SVs) listed in specified BEDPE file. Currently the script plots take into account only the start of each segement (second and fifth columns in the BEDPE file) to plot the bezier curves between the different genomic locations of individual events.
 
 
 #### Load libraries
@@ -166,20 +165,12 @@ ggplot() + geom_bezier(aes(x= x, y = y, group = group, color = svtype ), data = 
 Save the ggplot as .png file. If no output plot name is specified the file will have the same name as the input BEDPE file with added "_SVbezier" at the end and the extension changed to ".png"
 
 ```{r save_plot}
-##### Check if the output plot name is specified
-if ( is.na(unlist(params)[2]) ) {
-	outfile = unlist(strsplit(params$bedpe, split='.', fixed=TRUE))
-	outfile = paste0(paste(outfile[-length(outfile)], collapse = '.'), "_SVbezier.png")
-} else {
-  outfile = params$outfile
-}
-
-ggsave(file = outfile, plot = last_plot(), device = png(), scale = 1, width = 18, height = 3, units = "cm", dpi = 300, limitsize = TRUE)
+ggsave(file = params$outfile, plot = last_plot(), device = png(), scale = 1, width = 18, height = 3, units = "cm", dpi = 300, limitsize = TRUE)
 dev.off()
 ```
 
 Print session info
 
 ```{r session_info}
-sessionInfo
+sessionInfo()
 ```
