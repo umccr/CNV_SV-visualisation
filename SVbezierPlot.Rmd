@@ -5,7 +5,7 @@ date: "25/05/2018"
 params:
   bedpe:
   outfile:
-output: 
+output:
   html_document:
     keep_md: yes
 ---
@@ -40,8 +40,8 @@ pos2 <- sv.data[,5]
 
 ##### ... and the events type
 type <- sv.data[,7]
-type = gsub("Manta","", type)
-type = gsub(":\\d+","", type)
+type <- gsub("Manta","", type)
+type <- gsub(":\\d+","", type)
 ```
 
 #### Prepare x-axis coordinates info for ggplot
@@ -51,7 +51,7 @@ This part of the script converts the genomic positions from hg38 (other genome b
 Start with calculating the whole genome length. Here we consider chromosomes 1-22, X and Y
 
 ```{r genome_length}
-genome.length = sum(seqlengths(Hsapiens)[1:24])
+genome.length <- sum(seqlengths(Hsapiens)[1:24])
 ```
 
 
@@ -99,9 +99,9 @@ for ( i in 1:length(chrs_fake_starts) ) {
 }
 ```
 
-#### Calculate ggplot x-axis coordinates for SV
+#### Calculate ggplot x-axis coordinates for SVs
 
-Calculate the coordinates to draw bezier curves by adding the SV position info to the fake start coordinates of corresponding chromosomes
+Calculate the coordinates to draw bezier curves by adding the SVs position info to the fake start coordinates of corresponding chromosomes
 
 ```{r fake_beziers_positions}
 pos1_fake <- vector("list", nrow(sv.data))
@@ -125,7 +125,7 @@ beziers.height <- runif(nrow(sv.data), 1, 2)
 beziers.mid <- unlist(pos1_fake)+(unlist(pos2_fake)-unlist(pos1_fake))/2
 ```
 
-Create dataframe with beziers curves info
+Create data-frame with beziers curves info
 ```{r beziers_dataframe}
 beziers <- data.frame(
     x = c(rbind( unlist(pos1_fake), beziers.mid, unlist(pos2_fake) )),
