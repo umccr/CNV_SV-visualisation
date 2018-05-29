@@ -38,5 +38,5 @@ if ( is.na(output.plot) ) {
     output.plot <- paste0(output.plot, ".png")
 }
 
-##### Run the
+##### Pass the user-defined argumentas to the SVbezierPlot R markdown script and run the analysis
 rmarkdown::render(input="SVbezierPlot.Rmd", params = list(bedpe = bedpe.file, outfile = output.plot))
